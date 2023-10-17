@@ -123,24 +123,18 @@ def Get_Video_Details(video_ids):
 
 
 def Get_Comment_Details(video_ids):
-    b = []
-    max_comments = 500  # Set the maximum number of comments 
-
+    b = [] 
     for video_id in video_ids:
         try:
-            nextPageToken = None  # Initialize the token for pagination
-
-            while len(b) < max_comments:
-                request = youtube.commentThreads().list(
+            request = youtube.commentThreads().list(
                     part="snippet",
                     videoId=video_id,
                     textFormat="plainText",
-                    maxResults=min(100, max_comments - len(b)),  # Limit the number of comments per request
-                    pageToken=nextPageToken) # Use the token for pagination
+                    maxResults= 20) # Use the token for pagination
 
-                response = request.execute()
+            response = request.execute()
 
-                for comment in response.get("items", []):
+            for comment in response.get("items", []):
                     comment_snippet = comment["snippet"]["topLevelComment"]["snippet"]
                     b.append({
                         "video_id": video_id,
@@ -150,14 +144,8 @@ def Get_Comment_Details(video_ids):
                         "comment_text": comment_snippet["textDisplay"],
                         "comment_published_date":comment_snippet["publishedAt"]})
                    
-                nextPageToken = response.get("nextPageToken")  # Get the next page token
-
-                if not nextPageToken:
-                    break  # Exit the loop if there are no more pages
-
         except:
             pass
-
     return b
 def main (channel_id):
     channel_data = get_channel_details(channel_id)
